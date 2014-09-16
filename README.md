@@ -4,9 +4,13 @@ Convert Defect to Story
 ## Overview
 This app example is a proof of concept of how to approximate "Convert Defect to User Story" functionality in the UI.
 There is no feature parity between this app and how conversion is done in the UI. Here is what the app does:
+
 1. creates a new user story with the same name.
+
 2. sets defect's State to "Closed"
+
 3. if there are tasks on the defect, those tasks are removed from the defect and added to the story
+
 4. Notes field of the story is populated with some defect specific properties (State, Priority, Severity)
 
 
@@ -18,7 +22,7 @@ It has two tasks:
 
 ![](pic1.png)
 
-Select defect to copy anc click "Copy"
+Select defect to copy and click "Copy"
 
 ![](pic2.png)
 
