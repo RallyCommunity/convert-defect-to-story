@@ -4,9 +4,9 @@ Ext.define('CustomApp', {
     items:{ html:'<a href="https://help.rallydev.com/apps/2.0rc3/doc/">App SDK 2.0rc3 Docs</a>'},
     _story : {},
     _defect : {},
-    _type : null,
     launch: function() {
-        Ext.create('Rally.ui.dialog.ChooserDialog', {
+        //Ext.create('Rally.ui.dialog.ChooserDialog', { //deprecated
+        Ext.create('Rally.ui.dialog.SolrArtifactChooserDialog', {
             width: 450,
             autoScroll: true,
             height: 525,
@@ -20,10 +20,14 @@ Ext.define('CustomApp', {
                 fetch: ['Name','ScheduleState','State','Priority','Severity','Tasks']
             },
             listeners: {
-                artifactChosen: function(selectedRecord) {
-                    console.log(selectedRecord.get('FormattedID') + ', ' + selectedRecord.get('Name') + ' was chosen');
-                    this._story = selectedRecord;
-                    this._defect = selectedRecord;
+                //artifactChosen: function(selectedRecord) { //signature for ChooserDialog
+                 artifactchosen: function(dialog, selectedRecord) {
+                    //console.log(selectedRecord.get('FormattedID') + ', ' + selectedRecord.get('Name') + ' was chosen');
+                    console.log(selectedRecord.data.FormattedID + ', ' + selectedRecord.data.Name  + ' was chosen');
+                    //this._story = selectedRecord;
+                    //this._defect = selectedRecord;
+                    this._story = selectedRecord.data;
+                    this._defect = selectedRecord.data;
                     this.getStoryModel();
                 },
                 scope: this
@@ -45,16 +49,20 @@ Ext.define('CustomApp', {
     createStory: function() {
         var that = this;
         var record = Ext.create(this.storyModel, {
-            Name: this._story.get('Name'),
-            ScheduleState: this._story.get('ScheduleState'),
-            Notes: '<b>Defect specific properties:</b><br>Defect State: Closed<br>Priority:' + this._story.get('Priority') + '<br>Severity:' + this._story.get('Severity') 
+            //Name: this._story.get('Name'),
+            Name: this._story.Name,
+           //ScheduleState: this._story.get('ScheduleState'),
+            ScheduleState: this._story.ScheduleState,
+            //Notes: '<b>Defect specific properties:</b><br>Defect State: Closed<br>Priority:' + this._story.get('Priority') + '<br>Severity:' + this._story.get('Severity')
+            //Notes: '<b>Defect specific properties:</b><br>Defect State: Closed<br>Priority:' + this._story.Priority + '<br>Severity:' + this._story.Severity
             
         });
         record.save({
             callback: function(result, operation) {
                 if(operation.wasSuccessful()) {
                     that._storyOid = result.get('ObjectID');
-                    console.log('created story:', that._storyOid, result.get('FormattedID'),result.get('Name'),result.get('ScheduleState'));
+                    //that._storyOid = result.ObjectID;
+                    //console.log('created story:', that._storyOid, result.get('FormattedID'),result.get('Name'),result.get('ScheduleState'));
                     that.getDefectModel();
                 }
                 else{
@@ -64,7 +72,8 @@ Ext.define('CustomApp', {
         });
     },
     getDefectModel:function(){
-        console.log('closing defect ' + this._defect.get('FormattedID'));
+        //console.log('closing defect ' + this._defect.get('FormattedID'));
+        console.log('closing defect ' + this._defect.FormattedID);
         Rally.data.ModelFactory.getModel({
             type: 'defect',
             success: this.onDefectModelRetrieved,
@@ -78,7 +87,8 @@ Ext.define('CustomApp', {
     closeDefect:function(){
         var that = this;
         that._tasks = [];
-        var defectOid = that._defect.get('ObjectID');
+        //var defectOid = that._defect.get('ObjectID');
+        var defectOid = that._defect.ObjectID;
         this.defectModel.load(defectOid, {
             fetch: ['State','Tasks'],
             callback: function(record, operation) {
